@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Payment Receipt</title>
+  <!-- Tailwind CSS CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    /* Printing settings */
+    @media print {
+      body {
+        background-color: white !important;
+        padding: 0;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .print-shadow-none {
+        box-shadow: none !important;
+        border: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center min-h-screen p-4 font-sans text-gray-800">
+
+  <!-- Main Responsive Receipt Container -->
+  <div class="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-8 border border-gray-100 relative print-shadow-none overflow-hidden">
+    <!-- Top Accent Bar (Changes color dynamically based on app) -->
+    <div id="accent-bar" class="absolute top-0 left-0 right-0 h-2 bg-blue-600"></div>
+
+    <!-- App Logo Icon Section -->
+    <div class="flex justify-between items-center mb-6 mt-2">
+      <div class="flex items-center space-x-3">
+        <div id="app-logo-bg" class="w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm">
+          <span id="app-icon" class="text-xl font-bold text-white">S</span>
+        </div>
+        <div>
+          <h1 id="app-name-display" class="font-extrabold text-base tracking-tight text-gray-800">Soundbox</h1>
+          <p class="text-[10px] text-gray-400 font-semibold tracking-wider uppercase">Audio Alert Soundbox</p>
+        </div>
+      </div>
+      <span class="bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Success</span>
+    </div>
+
+    <!-- Receipt Header -->
+    <div class="text-center mb-6">
+      <div id="check-icon-circle" class="mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-4 shadow-inner">
+        <!-- SVG Success Check Icon -->
+        <svg class="w-9 h-9 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+        </svg>
+      </div>
+      <h2 class="text-2xl font-black text-gray-800 tracking-tight">Receipt</h2>
+      <p class="text-xs text-gray-400 mt-1">Transaction verified successfully</p>
+    </div>
+
+    <!-- Amount Block -->
+    <div class="my-6 bg-gray-50 rounded-2xl p-5 text-center border border-gray-100 relative">
+      <!-- Decorative background dot pattern -->
+      <div class="absolute inset-0 opacity-5 pointer-events-none" style="background-image: radial-gradient(#000 1px, transparent 1px); background-size: 8px 8px;"></div>
+      <span class="text-[11px] text-gray-400 font-bold uppercase tracking-widest block mb-1">Amount Received</span>
+      <span class="text-4xl font-black text-gray-800 tracking-tight" id="amount-text">₹0.00</span>
+    </div>
+
+    <!-- Invoice Details Card -->
+    <div class="space-y-4 text-sm border-t border-b border-dashed border-gray-200 py-6 mb-6">
+      <div class="flex justify-between">
+        <span class="text-gray-400 font-medium">Transaction ID:</span>
+        <span class="font-mono text-gray-800 font-black tracking-tight" id="txn-id-text">TXN123456789</span>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-gray-400 font-medium">Payment Channel:</span>
+        <span class="text-gray-800 font-extrabold" id="payment-channel-text">Google Pay</span>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-gray-400 font-medium">Sender:</span>
+        <span class="text-gray-800 font-extrabold" id="sender-text">Customer</span>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-gray-400 font-medium">Timestamp:</span>
+        <span class="text-gray-800 font-semibold text-xs" id="timestamp-text">June 22, 2026, 04:30 PM</span>
+      </div>
+    </div>
+
+    <!-- Footer Note -->
+    <div class="text-center text-[11px] text-gray-400 font-medium mb-6">
+      Thank you for your payment at Madduri Retail Store!
+    </div>
+
+    <!-- Download/Print Button (Actionable) -->
+    <button onclick="window.print()" class="no-print w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold py-4 rounded-2xl transition duration-200 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2">
+      <!-- Print/Download Icon -->
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+      </svg>
+      <span>Download / Print Receipt</span>
+    </button>
+  </div>
+
+  <script>
+    // Get query parameters from URL
+    const params = new URLSearchParams(window.location.search);
+    const amount = parseFloat(params.get('amt') || '0').toFixed(2);
+    const app = params.get('app') || 'Soundbox';
+    const sender = params.get('sender') || 'Customer';
+    const txnId = params.get('tx') || 'TXN' + Math.floor(Math.random() * 900000000000 + 100000000000);
+    const ts = parseInt(params.get('ts') || Date.now().toString());
+
+    // Update receipt UI elements
+    document.getElementById('amount-text').innerText = '₹ ' + parseFloat(amount).toLocaleString('en-IN', { minimumFractionDigits: 2 });
+    document.getElementById('txn-id-text').innerText = txnId;
+    document.getElementById('payment-channel-text').innerText = app;
+    document.getElementById('sender-text').innerText = sender;
+    document.getElementById('app-name-display').innerText = app;
+
+    // Convert timestamp to readable Indian standard date and time format
+    const dateObj = new Date(ts);
+    const options = { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true };
+    document.getElementById('timestamp-text').innerText = dateObj.toLocaleString('en-IN', options);
+
+    // Dynamic brand colors configurations
+    const accentBar = document.getElementById('accent-bar');
+    const appLogoBg = document.getElementById('app-logo-bg');
+    const checkIconCircle = document.getElementById('check-icon-circle');
+    const appIcon = document.getElementById('app-icon');
+
+    const appNameLower = app.toLowerCase();
+    if (appNameLower === 'phonepe') {
+      // Purple theme
+      accentBar.style.backgroundColor = '#5f259f';
+      appLogoBg.style.backgroundColor = '#5f259f';
+      checkIconCircle.style.backgroundColor = '#5f259f';
+      appIcon.innerText = 'P';
+    } else if (appNameLower === 'google pay' || appNameLower === 'gpay') {
+      // Google Pay Blue & Allied colors
+      accentBar.style.backgroundColor = '#1a73e8';
+      appLogoBg.style.backgroundColor = '#1a73e8';
+      checkIconCircle.style.backgroundColor = '#34a853'; // Classic success green
+      appIcon.innerText = 'G';
+    } else if (appNameLower === 'paytm') {
+      // Paytm Sky Blue & Dark Navy Blue
+      accentBar.style.backgroundColor = '#00baf2';
+      appLogoBg.style.backgroundColor = '#002e6e';
+      checkIconCircle.style.backgroundColor = '#00baf2';
+      appIcon.innerText = 'P';
+    } else {
+      // Default Generic Emerald Indigo fallback theme
+      accentBar.style.backgroundColor = '#4f46e5';
+      appLogoBg.style.backgroundColor = '#4f46e5';
+      checkIconCircle.style.backgroundColor = '#10b981';
+      appIcon.innerText = 'S';
+    }
+  </script>
+</body>
+</html>
