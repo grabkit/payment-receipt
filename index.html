@@ -3,20 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Payment Receipt - PinG Soundbox</title>
+  <title>Payment Receipt - PinG</title>
   <!-- Tailwind CSS CDN -->
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <!-- Google Fonts for exquisite typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   
   <style>
     body {
       font-family: 'Plus Jakarta Sans', sans-serif;
     }
-    .font-mono-receipt {
-      font-family: 'Share Tech Mono', monospace;
+    .receipt-font {
+      font-family: 'Courier Prime', 'Courier New', Courier, monospace;
     }
     
     /* Ensure print styling matches web styling 100% identically */
@@ -24,12 +24,12 @@
       body {
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
-        background: linear-gradient(135deg, #eff6ff 0%, #e0e7ff 100%) !important;
+        background: #f1f5f9 !important; /* Soft paper grey background */
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
         margin: 0 !important;
-        padding: 24px !important;
+        padding: 20px !important;
         min-height: 100vh !important;
       }
       .no-print {
@@ -38,232 +38,293 @@
       .receipt-container {
         page-break-inside: avoid !important;
         break-inside: avoid !important;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15) !important;
-        border: 1px solid rgba(226, 232, 240, 0.8) !important;
-        border-radius: 24px !important;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+        border: 1px solid #cbd5e1 !important;
         background-color: #ffffff !important;
-        max-width: 380px !important;
+        width: 100% !important;
+        max-width: 420px !important;
         margin: auto !important;
       }
     }
-
-    /* Ticket notch details */
-    .receipt-card {
-      position: relative;
-    }
-    .receipt-card::before, .receipt-card::after {
-      content: '';
-      position: absolute;
-      bottom: 180px; /* Aligns right above the QR code / dashed line area */
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      background-color: #eff6ff; /* Matches the page background gradient start */
-      z-index: 10;
-      transition: background-color 0.2s ease;
-    }
-    .receipt-card::before {
-      left: -8px;
-    }
-    .receipt-card::after {
-      right: -8px;
-    }
   </style>
 </head>
-<body class="bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center min-h-screen p-4 text-gray-800">
+<body class="bg-slate-100 flex flex-col items-center justify-center min-h-screen p-4 text-gray-800">
 
-  <div class="receipt-container receipt-card bg-white rounded-3xl shadow-2xl max-w-sm w-full p-8 border border-gray-100 relative overflow-hidden transition-all duration-300">
-    <!-- Brand Accent Bar at the top -->
-    <div id="accent-bar" class="absolute top-0 left-0 right-0 h-2 bg-blue-600 transition-all duration-300"></div>
+  <!-- Interactive top action bar (Hidden on print) -->
+  <div class="no-print max-w-md w-full mb-4 flex justify-between items-center bg-white px-5 py-3 rounded-2xl shadow-sm border border-slate-200">
+    <div class="flex items-center space-x-2">
+      <span class="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse"></span>
+      <span class="text-xs font-bold text-slate-600">PinG Real-time Receipt</span>
+    </div>
+    <button onclick="window.print()" class="text-xs font-extrabold bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl transition duration-200 flex items-center space-x-1.5 shadow-sm">
+      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"></path>
+      </svg>
+      <span>Download PDF</span>
+    </button>
+  </div>
 
-    <!-- App Logo & PinG Branding Header -->
-    <div class="flex justify-between items-center mb-6 mt-2">
-      <div class="flex items-center space-x-3">
-        <div id="app-logo-bg" class="w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm transition-all duration-300">
-          <span id="app-icon" class="text-xl font-extrabold text-white">P</span>
+  <!-- The Receipt Slip (Looks like a real thermal paper receipt!) -->
+  <div class="receipt-container bg-white border border-slate-300 shadow-xl max-w-md w-full p-6 md:p-8 rounded-3xl relative overflow-hidden transition-all duration-300">
+    
+    <!-- Header Multi-Brand Connection (PinG app logo + Payment method logo) -->
+    <div class="flex flex-col items-center justify-center mb-6">
+      <div class="flex items-center justify-center space-x-3 bg-slate-50 border border-slate-200/60 px-4 py-2 rounded-2xl shadow-sm mb-4">
+        <!-- PinG App Icon -->
+        <div class="flex items-center space-x-1.5">
+          <img src="app_icon.png" alt="PinG Logo" class="w-7 h-7 rounded-lg object-cover shadow-sm border border-slate-200" />
+          <span class="text-sm font-black text-slate-800 tracking-tight">PinG</span>
         </div>
-        <div>
-          <h1 id="app-name-display" class="font-extrabold text-base tracking-tight text-gray-800">PinG</h1>
-          <p class="text-[10px] text-gray-400 font-bold tracking-wider uppercase">PinG Soundbox</p>
+        
+        <!-- Plus/Link Symbol -->
+        <span class="text-slate-400 font-bold text-sm">+</span>
+        
+        <!-- Dynamic Payment App Logo (Rendered via JS) -->
+        <div id="payment-logo-container" class="flex items-center">
+          <!-- Dynamically inserted brand logo -->
         </div>
       </div>
-      <div class="flex flex-col items-end">
-        <span class="bg-green-100 text-green-700 text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider flex items-center space-x-1">
-          <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-ping mr-1"></span>
-          <span>Success</span>
-        </span>
-      </div>
+      
+      <!-- Secured Badge -->
+      <span class="bg-emerald-50 text-emerald-700 text-[10px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider border border-emerald-200/60 flex items-center">
+        <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full mr-1.5"></span>
+        <span>Secured Receipt</span>
+      </span>
     </div>
 
-    <!-- Receipt Status Icon & Title -->
-    <div class="text-center mb-6">
-      <div id="check-icon-circle" class="mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-3 shadow-inner transition-all duration-300">
-        <!-- SVG Success Checkmark -->
-        <svg class="w-9 h-9 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
-        </svg>
+    <!-- Thermal Bill Layout Wrapper -->
+    <div class="receipt-font text-gray-900 text-sm">
+      
+      <!-- Bill Header -->
+      <div class="text-center space-y-1 mb-5">
+        <h3 class="font-bold text-xs tracking-wide">BILL OF SUPPLY</h3>
+        <h2 class="font-extrabold text-base tracking-tight uppercase" id="merchant-name">MADDURI RETAIL STORE</h2>
+        <p class="text-[11px] uppercase text-slate-600 leading-tight" id="merchant-location">123 Market Street, Andhra Pradesh, India</p>
+        <p class="text-[11px] text-slate-600" id="merchant-contact">Phone No: +91 9059356666</p>
       </div>
-      <h2 class="text-xl font-black text-gray-900 tracking-tight uppercase">Payment Receipt</h2>
-      <p class="text-[11px] text-gray-400 font-semibold tracking-wide uppercase flex items-center justify-center space-x-1 mt-0.5">
-        <svg class="w-3.5 h-3.5 text-green-500 mr-0.5" fill="currentColor" viewBox="0 0 20 20">
-          <path fill-rule="evenodd" d="M6.267 3.455a.75.75 0 00-.708-.523H4.56a2.25 2.25 0 00-2.25 2.25v1.4a.75.75 0 00.15.45l2.24 2.99a2.25 2.25 0 003.596 0l2.24-2.99a.75.75 0 00.15-.45v-1.4a2.25 2.25 0 00-2.25-2.25H6.267zm-.708 1.977a.75.75 0 011.06 0l1.5 1.5a.75.75 0 11-1.06 1.06l-.97-.97V10.5a.75.75 0 01-1.5 0V7.02l-.97.97a.75.75 0 01-1.06-1.06l1.5-1.5z" clip-rule="evenodd" />
-          <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" />
-        </svg>
-        <span>Secured by PinG Trust Engine</span>
-      </p>
-    </div>
 
-    <!-- Amount Received Block -->
-    <div class="my-5 bg-gray-50 rounded-2xl p-5 text-center border border-gray-100 relative overflow-hidden shadow-sm">
-      <div class="absolute inset-0 opacity-5 pointer-events-none" style="background-image: radial-gradient(#000 1px, transparent 1px); background-size: 8px 8px;"></div>
-      <span class="text-[10px] text-gray-400 font-extrabold uppercase tracking-widest block mb-1">Amount Received</span>
-      <span class="text-4xl font-black text-gray-900 tracking-tight" id="amount-text">₹0.00</span>
-    </div>
+      <!-- Divider -->
+      <div class="border-t border-dashed border-gray-400 my-4"></div>
 
-    <!-- Detailed Receipt Grid -->
-    <div class="space-y-4 text-xs border-t border-b border-dashed border-gray-200 py-5 mb-5">
-      <div class="flex justify-between items-start" id="merchant-row">
-        <span class="text-gray-400 font-semibold uppercase tracking-wider">Merchant</span>
-        <span class="text-gray-900 font-extrabold text-right max-w-[200px]" id="merchant-text">Madduri Retail Store</span>
+      <!-- Metadata Section -->
+      <div class="space-y-1 text-xs">
+        <div class="flex justify-between">
+          <span>Invoice No :</span>
+          <span class="font-bold" id="invoice-no">TXN1234567890</span>
+        </div>
+        <div class="flex justify-between">
+          <span>Date :</span>
+          <span id="invoice-date">23/06/2026, 08:17 PM</span>
+        </div>
+        <div class="flex justify-between">
+          <span>Bill To :</span>
+          <span class="font-bold" id="bill-to-name">9533737384 siva</span>
+        </div>
       </div>
-      <div class="flex justify-between items-center" id="contact-row" style="display: none;">
-        <span class="text-gray-400 font-semibold uppercase tracking-wider">Contact</span>
-        <span class="text-gray-900 font-extrabold text-right" id="contact-text"></span>
-      </div>
-      <div class="flex justify-between items-start" id="location-row" style="display: none;">
-        <span class="text-gray-400 font-semibold uppercase tracking-wider">Location</span>
-        <span class="text-gray-900 font-semibold text-right max-w-[180px]" id="location-text"></span>
-      </div>
-      <div class="flex justify-between items-center">
-        <span class="text-gray-400 font-semibold uppercase tracking-wider">Transaction ID</span>
-        <span class="font-mono-receipt text-gray-900 font-bold tracking-tight text-sm" id="txn-id-text">TXN123456789</span>
-      </div>
-      <div class="flex justify-between items-center">
-        <span class="text-gray-400 font-semibold uppercase tracking-wider">Payment App</span>
-        <span class="text-gray-900 font-extrabold flex items-center space-x-1" id="payment-channel-text">Google Pay</span>
-      </div>
-      <div class="flex justify-between items-center">
-        <span class="text-gray-400 font-semibold uppercase tracking-wider">Sender Name</span>
-        <span class="text-gray-900 font-extrabold" id="sender-text">Customer</span>
-      </div>
-      <div class="flex justify-between items-center">
-        <span class="text-gray-400 font-semibold uppercase tracking-wider">Date & Time</span>
-        <span class="text-gray-900 font-bold" id="timestamp-text">June 22, 2026, 04:30 PM</span>
-      </div>
-    </div>
 
-    <!-- Footer Custom Note -->
-    <div id="footer-note-text" class="text-center text-[11px] text-gray-500 font-semibold mb-6 italic px-2">
-      Thank you for your payment!
-    </div>
+      <!-- Divider -->
+      <div class="border-t border-dashed border-gray-400 my-4"></div>
 
-    <!-- Bottom QR Code Verification Section -->
-    <div class="flex flex-col items-center justify-center border-t border-dashed border-gray-200 pt-5 mt-2">
-      <div class="p-2.5 bg-white border border-gray-100 rounded-2xl shadow-inner mb-2.5">
-        <img id="qr-code-img" src="" alt="Scan to Verify Receipt" class="w-24 h-24 transition-opacity duration-300" />
+      <!-- Table Header -->
+      <div class="text-xs space-y-1">
+        <div class="flex justify-between font-bold">
+          <span class="w-8">No</span>
+          <span class="flex-1 text-left">Item Name</span>
+        </div>
+        <div class="flex justify-between font-bold text-slate-600">
+          <span class="w-8"></span>
+          <span>MRP</span>
+          <span>Rate</span>
+          <span>Qty</span>
+          <span class="w-20 text-right">Amount</span>
+        </div>
       </div>
-      <p class="text-[9px] text-gray-400 font-extrabold tracking-widest uppercase">Scan to Verify Transaction</p>
-      <p class="text-[10px] text-blue-600 font-bold mt-1 tracking-tight hover:underline cursor-pointer" onclick="window.open(window.location.href, '_blank')">secure.pingbox.in/verify</p>
-    </div>
 
-    <!-- Interactive Actions (Hidden during PDF generation/printing) -->
-    <div class="no-print mt-6 pt-2">
-      <button onclick="window.print()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold py-4 rounded-2xl transition duration-200 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2.5">
-        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-        </svg>
-        <span class="text-sm tracking-wide">Download / Save PDF Receipt</span>
-      </button>
+      <!-- Divider -->
+      <div class="border-t border-dashed border-gray-400 my-3"></div>
+
+      <!-- Table Body -->
+      <div class="text-xs space-y-3">
+        <div class="space-y-0.5">
+          <div class="flex justify-between">
+            <span class="w-8">1</span>
+            <span class="flex-1 text-left font-bold" id="item-description">UPI PAYMENT RECEIVED (GPay)</span>
+          </div>
+          <div class="flex justify-between text-slate-600">
+            <span class="w-8"></span>
+            <span id="item-mrp">₹590.00</span>
+            <span id="item-rate">₹590.00</span>
+            <span>1 Pcs</span>
+            <span class="w-20 text-right font-bold text-gray-900" id="item-amount">₹590.00</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Divider -->
+      <div class="border-t border-dashed border-gray-400 my-4"></div>
+
+      <!-- Summary Section -->
+      <div class="text-xs space-y-1.5">
+        <div class="flex justify-between">
+          <span>Sub Total</span>
+          <span class="font-bold" id="sub-total-val">₹590.00</span>
+        </div>
+        <div class="flex justify-between">
+          <span>Discount</span>
+          <span>- ₹0.00</span>
+        </div>
+        <div class="flex justify-between">
+          <span>Taxable Amount</span>
+          <span id="taxable-val">₹590.00</span>
+        </div>
+      </div>
+
+      <!-- Divider -->
+      <div class="border-t border-dashed border-gray-400 my-4"></div>
+
+      <!-- Totals Section -->
+      <div class="text-sm space-y-1.5">
+        <div class="flex justify-between font-bold">
+          <span>Total Amount</span>
+          <span id="total-val">₹590.00</span>
+        </div>
+        <div class="flex justify-between font-bold">
+          <span>Amount Received</span>
+          <span id="received-val">₹590.00</span>
+        </div>
+        <div class="flex justify-between">
+          <span>Balance Amount</span>
+          <span>₹0.00</span>
+        </div>
+      </div>
+
+      <!-- Divider -->
+      <div class="border-t border-dashed border-gray-400 my-4"></div>
+
+      <!-- Saved message -->
+      <div class="text-center font-bold text-xs py-1 my-1" id="saved-msg-block">
+        ** Transaction Successfully Announced **
+      </div>
+
+      <!-- Divider -->
+      <div class="border-t border-dashed border-gray-400 my-4"></div>
+
+      <!-- Terms & Conditions -->
+      <div class="text-[10px] leading-normal space-y-1 text-slate-700">
+        <p class="font-bold">Terms and conditions</p>
+        <p>1. Goods once sold will not be taken back or exchanged</p>
+        <p>2. All disputes are subject to local jurisdiction only</p>
+      </div>
+
+      <!-- Bottom Verification Section -->
+      <div class="flex flex-col items-center justify-center pt-6 mt-4">
+        <!-- QR Code -->
+        <div class="p-1.5 bg-white border border-gray-300 rounded-lg mb-2.5">
+          <img id="qr-code-img" src="" alt="Scan to Verify" class="w-24 h-24" />
+        </div>
+        <p class="text-[9px] text-center font-bold tracking-wider uppercase">Scan to Verify Transaction</p>
+        <p class="text-[10px] text-blue-600 font-bold mt-1 tracking-tight hover:underline cursor-pointer" onclick="window.open(window.location.href, '_blank')">secure.ping.in/verify</p>
+        <p class="text-xs text-center text-slate-500 font-bold mt-3" id="footer-note">Thank you for your purchase</p>
+      </div>
+
     </div>
   </div>
 
   <script>
     // Extract transaction properties from current request query
     const params = new URLSearchParams(window.location.search);
-    const amount = parseFloat(params.get('amt') || '0').toFixed(2);
+    const amountVal = parseFloat(params.get('amt') || '0');
+    const amountFormatted = amountVal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    
     const app = params.get('app') || 'PinG';
     const sender = params.get('sender') || 'Customer';
     const txnId = params.get('tx') || 'TXN' + Math.floor(Math.random() * 900000000000 + 100000000000);
     const ts = parseInt(params.get('ts') || Date.now().toString());
     const shop = params.get('shop') || 'Madduri Retail Store';
-    const footer = params.get('footer') || `Thank you! Visit again.`;
+    const footer = params.get('footer') || 'Thank you for your purchase';
     const contact = params.get('contact') || '';
     const locationVal = params.get('location') || '';
 
-    // Bind parameters dynamically to layout elements
-    document.getElementById('amount-text').innerText = '₹ ' + parseFloat(amount).toLocaleString('en-IN', { minimumFractionDigits: 2 });
-    document.getElementById('txn-id-text').innerText = txnId;
-    document.getElementById('payment-channel-text').innerText = app;
-    document.getElementById('sender-text').innerText = sender;
-    document.getElementById('app-name-display').innerText = app;
-    document.getElementById('footer-note-text').innerText = footer;
-    document.getElementById('merchant-text').innerText = shop;
-
-    // Contact details display logic
-    const contactRow = document.getElementById('contact-row');
-    const contactText = document.getElementById('contact-text');
-    if (contact) {
-      contactText.innerText = contact;
-      contactRow.style.display = 'flex';
-    } else {
-      contactRow.style.display = 'none';
-    }
-
-    // Location details display logic
-    const locationRow = document.getElementById('location-row');
-    const locationText = document.getElementById('location-text');
-    if (locationVal) {
-      locationText.innerText = locationVal;
-      locationRow.style.display = 'flex';
-    } else {
-      locationRow.style.display = 'none';
-    }
-
-    // Formatted date output
+    // Format Date
     const dateObj = new Date(ts);
-    const dateOptions = { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true };
-    document.getElementById('timestamp-text').innerText = dateObj.toLocaleString('en-IN', dateOptions);
+    const dateOptions = { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true };
+    const dateString = dateObj.toLocaleString('en-IN', dateOptions).replace(/\//g, '/');
 
-    // Apply color schemes based on transaction app context
-    const accentBar = document.getElementById('accent-bar');
-    const appLogoBg = document.getElementById('app-logo-bg');
-    const checkIconCircle = document.getElementById('check-icon-circle');
-    const appIcon = document.getElementById('app-icon');
-
-    const normalizedApp = app.toLowerCase().trim();
-    if (normalizedApp === 'phonepe') {
-      // PhonePe Brand Theme (Purple)
-      accentBar.style.backgroundColor = '#5f259f';
-      appLogoBg.style.backgroundColor = '#5f259f';
-      checkIconCircle.style.backgroundColor = '#5f259f';
-      appIcon.innerText = 'P';
-    } else if (normalizedApp === 'google pay' || normalizedApp === 'gpay') {
-      // Google Pay Brand Theme (Blue)
-      accentBar.style.backgroundColor = '#1a73e8';
-      appLogoBg.style.backgroundColor = '#1a73e8';
-      checkIconCircle.style.backgroundColor = '#34a853'; // Google Green success
-      appIcon.innerText = 'G';
-    } else if (normalizedApp === 'paytm') {
-      // Paytm Brand Theme (Paytm Blue)
-      accentBar.style.backgroundColor = '#00baf2';
-      appLogoBg.style.backgroundColor = '#002e6e';
-      checkIconCircle.style.backgroundColor = '#00baf2';
-      appIcon.innerText = 'P';
-    } else if (normalizedApp === 'ping' || normalizedApp === 'pingbox' || normalizedApp === 'ping soundbox') {
-      // PinG Official Brand Theme (Vibrant Turquoise/Indigo)
-      accentBar.style.backgroundColor = '#0ea5e9'; // vibrant cyan-500
-      appLogoBg.style.backgroundColor = '#4f46e5'; // indigo-600
-      checkIconCircle.style.backgroundColor = '#10b981'; // emerald-500
-      appIcon.innerText = 'P';
+    // Populate dynamic elements
+    document.getElementById('merchant-name').innerText = shop.toUpperCase();
+    
+    // Hide or show contact details if present
+    const contactElem = document.getElementById('merchant-contact');
+    if (contact) {
+      contactElem.innerText = 'Phone No: ' + contact;
+      contactElem.style.display = 'block';
     } else {
-      // Default PinG/Standard Theme
-      accentBar.style.backgroundColor = '#4f46e5';
-      appLogoBg.style.backgroundColor = '#4f46e5';
-      checkIconCircle.style.backgroundColor = '#10b981';
-      appIcon.innerText = app.charAt(0).toUpperCase();
+      contactElem.style.display = 'none';
     }
 
-    // Dynamic QR generation containing the active verify-receipt URL link
+    // Hide or show location details if present
+    const locationElem = document.getElementById('merchant-location');
+    if (locationVal) {
+      locationElem.innerText = locationVal;
+      locationElem.style.display = 'block';
+    } else {
+      locationElem.style.display = 'none';
+    }
+
+    document.getElementById('invoice-no').innerText = txnId;
+    document.getElementById('invoice-date').innerText = dateString;
+    document.getElementById('bill-to-name').innerText = sender;
+    document.getElementById('footer-note').innerText = footer;
+
+    // Itemized details matching the exact reference layout
+    document.getElementById('item-description').innerText = `UPI INCOMING PAYMENT (${app})`;
+    document.getElementById('item-mrp').innerText = '₹' + amountFormatted;
+    document.getElementById('item-rate').innerText = '₹' + amountFormatted;
+    document.getElementById('item-amount').innerText = '₹' + amountFormatted;
+    document.getElementById('sub-total-val').innerText = '₹' + amountFormatted;
+    document.getElementById('taxable-val').innerText = '₹' + amountFormatted;
+    document.getElementById('total-val').innerText = '₹' + amountFormatted;
+    document.getElementById('received-val').innerText = '₹' + amountFormatted;
+
+    // Brand Logo rendering based on app selection
+    const normalizedApp = app.toLowerCase().trim();
+    const logoContainer = document.getElementById('payment-logo-container');
+    
+    let logoHtml = '';
+    if (normalizedApp === 'phonepe') {
+      logoHtml = `
+        <div class="flex items-center space-x-1 px-2.5 py-1 bg-purple-50 border border-purple-200 rounded-lg">
+          <span class="w-4 h-4 flex items-center justify-center bg-[#5f259f] text-white rounded font-black text-[9px]">Pe</span>
+          <span class="text-[#5f259f] font-black text-xs tracking-tight">PhonePe</span>
+        </div>`;
+    } else if (normalizedApp === 'google pay' || normalizedApp === 'gpay') {
+      logoHtml = `
+        <div class="flex items-center space-x-1 px-2.5 py-1 bg-blue-50 border border-blue-100 rounded-lg">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12.24 10.285V13.4h6.86c-.27 1.41-1.61 4.14-6.86 4.14-4.51 0-8.19-3.73-8.19-8.33s3.68-8.33 8.19-8.33c2.57 0 4.29 1.07 5.27 2.01l2.45-2.36C18.4 1.15 15.54 0 12.24 0 5.48 0 0 5.48 0 12.24s5.48 12.24 12.24 12.24c7.05 0 11.75-4.96 11.75-11.96 0-.8-.09-1.42-.2-2.24h-11.55z" fill="#4285F4"/>
+          </svg>
+          <span class="text-slate-800 font-extrabold text-xs tracking-tight">G Pay</span>
+        </div>`;
+    } else if (normalizedApp === 'paytm') {
+      logoHtml = `
+        <div class="flex items-center space-x-0.5 px-2.5 py-1 bg-sky-50 border border-sky-100 rounded-lg">
+          <span class="text-[#002e6e] font-black text-xs tracking-tight">pay</span><span class="text-[#00baf2] font-black text-xs tracking-tight">tm</span>
+        </div>`;
+    } else if (normalizedApp === 'amazon pay' || normalizedApp === 'amazon') {
+      logoHtml = `
+        <div class="flex items-center space-x-0.5 px-2.5 py-1 bg-amber-50 border border-amber-200 rounded-lg">
+          <span class="text-slate-900 font-extrabold text-[10px] tracking-tight">amazon</span><span class="text-[#ff9900] font-black text-[10px] tracking-tight">pay</span>
+        </div>`;
+    } else {
+      logoHtml = `
+        <div class="flex items-center space-x-1 px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-lg">
+          <span class="text-slate-800 font-extrabold text-xs tracking-tight">${app}</span>
+        </div>`;
+    }
+    
+    logoContainer.innerHTML = logoHtml;
+
+    // Generate dynamic verification QR Code pointing directly to this secure online receipt URL
     const qrImage = document.getElementById('qr-code-img');
     const secureVerifyUrl = window.location.href;
     qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(secureVerifyUrl)}&color=000000&bgcolor=ffffff&qzone=1`;
